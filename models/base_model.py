@@ -17,8 +17,8 @@ Attributes:
 Methods:
 - __init__(): Initializes the instance with a unique `id`, and sets both
   `created_at` and `updated_at` attributes to the current datetime.
-- __setattr__(name, value): Overridden method that updates the `updated_at`
-  attribute whenever an instance is modified.
+- save(): Updates the `updated_at` attribute whenever an instance is
+  modified.
 - __str__(): Provides a string representation of the instance, including
   the class name, unique identifier, and instance attributes.
 
@@ -58,15 +58,10 @@ class BaseModel:
         self.created_at = str(datetime.now().isoformat())
         self.updated_at = str(datetime.now().isoformat())
 
-    def __setattr__(self, name, value):
-        """
-        Refreshes the 'updated_at' attribute every time an object is
-        modified by overriding the '__setattr__()' method.
-        """
+    def save(self):
+        """Updates the 'updated_at' attribute when an object is modified."""
 
-        supe().__setattr__(name, value)		# Modifies the object normally
-        if name != 'updated_at':		# Avoids recursion
-            self.updated_at = str(datetime.now().isoformat())
+        self.updated_at = str(datetime.now().isoformat())
 
     def __str__(self):
         """Returns a string representation of an object"""
