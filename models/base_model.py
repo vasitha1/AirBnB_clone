@@ -66,11 +66,10 @@ class BaseModel:
                 if key != '__class__':
                     if key in ['created_at', 'updated_at']:
                         # convert created at and updated_at to datetime objects
-                        kwargs[key] = datetime.strptime(value,
+                        value = datetime.strptime(value,
                                         '%Y-%m-%dT%H:%M:%S.%f')
-            for key, value in kwargs.items():
-                # Initialize attributes from kwargs
-                setattr(self, key, value)
+                        # Initialize attributes from kwargs
+                    setattr(self, key, value)
 
     def __str__(self):
         """Returns a string representation of an object"""
@@ -98,4 +97,4 @@ class BaseModel:
 
         # Add the class name as __class__
         dict_rep['__class__'] = self.__class__.__name__
-__init__(self, *args, **kwargs)        return dict_rep
+        return dict_rep
