@@ -81,7 +81,7 @@ class BaseModel:
     def save(self):
         """Updates the 'updated_at' attribute when an object is modified."""
 
-        self.updated_at = str(datetime.now())
+        self.updated_at = datetime.now()
 
     def to_dict(self):
         """
