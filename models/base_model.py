@@ -75,7 +75,7 @@ class BaseModel:
             self.created_at = datetime.now()
             self.updated_at = datetime.now()
 
-        # Ensure the attributes set even if they're missed in `kwargs`
+        # Ensure the attributes are set even if they're missed in `kwargs`
         if not hasattr(self, 'id'):
             self.id = str(uuid.uuid4())
         if not hasattr(self, 'created_at'):
