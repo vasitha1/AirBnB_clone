@@ -15,8 +15,9 @@ Attributes:
   time of the instance.
 
 Methods:
-- __init__(): Initializes the instance with a unique `id`, and sets both
-  `created_at` and `updated_at` attributes to the current datetime.
+- __init__(): If `kwargs` is provided, it will set instance attributes
+  from it. Otherwise, it initializes the instance with a unique `id`, and
+  sets both `created_at` and `updated_at` attributes to the current datetime.
 - __str__(): Provides a string representation of the instance, including
   the class name, unique identifier, and instance attributes.
 - save(): Updates the `updated_at` attribute to the current date and time
@@ -49,6 +50,10 @@ class BaseModel:
         """
         Instantiates public instance attributes.
 
+        The `fromisoformat` method parses a string in ISO format and
+        returns a `datetime` object. The `setattr` method dynamically
+        sets an attribute on the instance (self).
+
         id (string) - A unique ID assigned by UUID
         created_at (datetime) - The current datetime when an instance
                                 is created
@@ -56,20 +61,27 @@ class BaseModel:
                                 is updated
         """
 
-        if not kwargs:
+        if kwargs:
+            for key, value in kwargs.items():
+                if key in ['created_at', 'updated_at']:
+                    # convert `created_at` and `updated_at` to datetime objects
+                    value = datetime.fromisoformat(value)
+
+                    # Initialize attributes from kwargs
+                    setattr(self, key, value)
+
+        else:
             self.id = str(uuid.uuid4())
             self.created_at = datetime.now()
             self.updated_at = datetime.now()
 
-        else:
-            for key, value in kwargs.items():
-                if key != '__class__':
-                    if key in ['created_at', 'updated_at']:
-                        # convert created at and updated_at to datetime objects
-                        value = datetime.strptime(value,
-                                        '%Y-%m-%dT%H:%M:%S.%f')
-                        # Initialize attributes from kwargs
-                    setattr(self, key, value)
+        # Ensure the attributes are set even if they're missed in `kwargs`
+        if not hasattr(self, 'id'):
+            self.id = str(uuid.uuid4())
+        if not hasattr(self, 'created_at'):
+            self.created_at = datetime.now()
+        if not hasattr(self, 'updated_at'):
+            self.updated_at = datetime.now()
 
     def __str__(self):
         """Returns a string representation of an object"""
