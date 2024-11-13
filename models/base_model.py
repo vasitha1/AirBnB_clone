@@ -63,7 +63,7 @@ class BaseModel:
 
         if kwargs:
             for key, value in kwargs.items():
-                if key == 'created_at' or key == 'updated_at':
+                if key in ['created_at', 'updated_at']:
                     # convert `created_at` and `updated_at` to datetime objects
                     value = datetime.fromisoformat(value)
 
@@ -73,6 +73,14 @@ class BaseModel:
         else:
             self.id = str(uuid.uuid4())
             self.created_at = datetime.now()
+            self.updated_at = datetime.now()
+
+        # Ensure the attributes set even if they're missed in `kwargs`
+        if not hasattr(self, 'id'):
+            self.id = str(uuid.uuid4())
+        if not hasattr(self, 'created_at'):
+            self.created_at = datetime.now()
+        if not hasattr(self, 'updated_at'):
             self.updated_at = datetime.now()
 
     def __str__(self):
