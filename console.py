@@ -40,6 +40,36 @@ class HBNBCommand(cmd.Cmd):
         """Is called when the command is not recorgnised """
         print("Command not found: {}".format(line))
 
+    def do_create(self, arg):
+        """Creates a new instance of the basemode, prints it's id and saves"""
+        if not arg:
+            print("** class name missing **")
+            return
+        if arg != "Basemodel":
+            print("** class doesn't exist **")
+            return
+        new_instance = BaseModel()
+        #remember to save to file when base method is added
+        print(new_instance.id)
+
+    def do_show(self, class_name, id):
+        """Prints string representation of instance based class name and id"""
+        if not class_name:
+            print("** class name missing **")
+            return
+        if class_name != "Basemodel":
+            print("** class doesn't exist **")
+            return
+        if not id:
+            print("** instance id missing **")
+            return
+        instance = basemodel.get(class_name, id)#Need to implement in the basemodel
+
+        if not instance:
+            print("** no instance found **")
+            return
+        print("{}".format(instance = storage.get(class_name, id)))#Need to implement in Basemodel
+
     def do_help(self, arg):
         """ Doccuments all created methods """
         if arg == "quit":
