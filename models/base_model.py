@@ -15,8 +15,9 @@ Attributes:
   time of the instance.
 
 Methods:
-- __init__(): Initializes the instance with a unique `id`, and sets both
-  `created_at` and `updated_at` attributes to the current datetime.
+- __init__(): If `kwargs` is provided, it will set instance attributes
+  from it. Otherwise, it initializes the instance with a unique `id`, and
+  sets both `created_at` and `updated_at` attributes to the current datetime.
 - __str__(): Provides a string representation of the instance, including
   the class name, unique identifier, and instance attributes.
 - save(): Updates the `updated_at` attribute to the current date and time
@@ -45,9 +46,13 @@ from datetime import datetime
 class BaseModel:
     """Defines common attributes/methods for other classes."""
 
-    def __init__(self, *args, **kwargs)
+    def __init__(self, *args, **kwargs):
         """
         Instantiates public instance attributes.
+
+        The `fromisoformat` method parses a string in ISO format and
+        returns a `datetime` object. The `setattr` method dynamically
+        sets an attribute on the instance (self).
 
         id (string) - A unique ID assigned by UUID
         created_at (datetime) - The current datetime when an instance
@@ -56,21 +61,19 @@ class BaseModel:
                                 is updated
         """
 
-        if kwargs is None 
+        if kwargs:
+            for key, value in kwargs.items():
+                if key == 'created_at' or key == 'updated_at':
+                    # convert `created_at` and `updated_at` to datetime objects
+                    value = datetime.fromisoformat(value)
+
+                    # Initialize attributes from kwargs
+                    setattr(self, key, value)
+
+        else:
             self.id = str(uuid.uuid4())
             self.created_at = datetime.now()
             self.updated_at = datetime.now()
-
-        else:
-            for key, value in kwargs.items():
-                if key != '__class__':
-                    if key in ['created_at', 'updated_at']:
-                        # convert created at and updated_at to datetime objects
-                        kwargs[key] = datetime.strptime(value,
-                                        '%Y-%m-%dT%H:%M:%S.%f')
-            for key, value in kwargs.items():
-                # Initialize attributes from kwargs
-                setattr(self, key, value)
 
     def __str__(self):
         """Returns a string representation of an object"""
@@ -98,4 +101,4 @@ class BaseModel:
 
         # Add the class name as __class__
         dict_rep['__class__'] = self.__class__.__name__
-__init__(self, *args, **kwargs)        return dict_rep
+        return dict_rep
