@@ -18,6 +18,7 @@ Methods:
 - __init__(): If `kwargs` is provided, it will set instance attributes
   from it. Otherwise, it initializes the instance with a unique `id`, and
   sets both `created_at` and `updated_at` attributes to the current datetime.
+  It also calls the `new()` method for new instance.
 - __str__(): Provides a string representation of the instance, including
   the class name, unique identifier, and instance attributes.
 - save(): Updates the `updated_at` attribute to the current date and time
@@ -54,11 +55,15 @@ class BaseModel:
         returns a `datetime` object. The `setattr` method dynamically
         sets an attribute on the instance (self).
 
-        id (string) - A unique ID assigned by UUID
-        created_at (datetime) - The current datetime when an instance
-                                is created
-        updated_at (datetime) - The current datetime when an isnatnce
-                                is updated
+        If it's a new instance (not from a dictionary representation),
+        calls the method `new(self)` on `storage`
+
+        Attributes:
+            id (string) - A unique ID assigned by UUID
+            created_at (datetime) - The current datetime when an instance
+                                    is created
+            updated_at (datetime) - The current datetime when an isnatnce
+                                    is updated
         """
 
         if kwargs:
@@ -75,6 +80,10 @@ class BaseModel:
             self.created_at = datetime.now()
             self.updated_at = datetime.now()
 
+            # Register the new instance with storage
+            from models import storage  	# Import here to avoid cicular import
+            storage.new(self)
+
         # Ensure the attributes are set even if they're missed in `kwargs`
         if not hasattr(self, 'id'):
             self.id = str(uuid.uuid4())
@@ -90,9 +99,16 @@ class BaseModel:
             type(self).__name__, self.id, self.__dict__))
 
     def save(self):
-        """Updates the 'updated_at' attribute when an object is modified."""
+        """
+        Updates the 'updated_at' attribute when an object is modified and
+        saves the instance using storage.
+        """
 
         self.updated_at = datetime.now()
+
+        # Save the updated state to the JSON file
+        from models import storage  	# Import here to avoid cicular import
+        storage.save()
 
     def to_dict(self):
         """
