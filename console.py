@@ -66,7 +66,10 @@ class HBNBCommand(cmd.Cmd):
     """
 
     def do_create(self, arg):
-        """Creates a new instance of the BaseModel, saves and prints it's id."""
+        """
+        Creates a new instance of the BaseModel, saves and prints
+        it's id.
+        """
 
         if not arg:
             print("** class name missing **")
@@ -86,7 +89,10 @@ class HBNBCommand(cmd.Cmd):
             print("Error: {}".format(e))
 
     def do_show(self, arg):
-        """Prints string representation of an instance based on class name and id"""
+        """
+        Prints string representation of an instance based on class name
+        and id
+        """
 
         args = shlex.split(arg)
 
@@ -153,8 +159,10 @@ class HBNBCommand(cmd.Cmd):
             print("** class doesn't exist **")
 
         else:
-            filtered_objs = [str(obj) for key, obj in objects.items()
-                            if key.startswith("{}.".format(args[0]))]
+            filtered_objs = [
+                str(obj) for key, obj in objects.items()
+                if key.startswith("{}.".format(args[0]))
+            ]
 
             print(filtered_objs)
 
@@ -250,7 +258,7 @@ class HBNBCommand(cmd.Cmd):
 
     """
     def do_help(self, arg):
-         Doccuments all created methods 
+         Doccuments all created methods
         if arg == "quit":
             print("Quit command to exit the program\n")
         elif arg == "EOF":
