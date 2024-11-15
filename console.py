@@ -31,7 +31,6 @@ Design Notes:
 """
 
 import cmd
-import shlex  	# To handle quoted strings properly
 from models import storage
 from datetime import datetime
 from models.base_model import BaseModel
@@ -75,18 +74,15 @@ class HBNBCommand(cmd.Cmd):
             print("** class name missing **")
             return
 
-        try:
-            # If class name is valid, create an instance dynamically
-            if arg == "BaseModel":
-                instance = BaseModel()
-                instance.save()
-                print(instance.id)
+        # Fetch the class from the argument dynamically using `globals()`
+        cls = globals().get(arg)
+        if cls and cls issubclass(cls, BaseModel):
+            instance = cls()
+            instance.save()
+            print(instance.id)
 
-            else:
-                print("** class doesn't exist **")
-
-        except Exception as e:
-            print("Error: {}".format(e))
+        else:
+            print("** class doesn't exist **")
 
     def do_show(self, arg):
         """
@@ -94,13 +90,14 @@ class HBNBCommand(cmd.Cmd):
         and id
         """
 
-        args = shlex.split(arg)
+        args = arg.split()
 
         if not args:
             print("** class name missing **")
             return
 
-        if args[0] != "BaseModel":
+        cls = globals().get(args[0])
+        if not cls or not isscubclass(cls, BaseModel):
             print("** class doesn't exist **")
             return
 
@@ -120,13 +117,14 @@ class HBNBCommand(cmd.Cmd):
     def do_destroy(self, arg):
         """Deletes an instance based on class name and ID"""
 
-        args = shlex.split(arg)
+        args = arg.split()
 
         if not args:
             print("** class name missing **")
             return
 
-        if args[0] != "BaseModel":
+        cls = globals().get(args[0])
+        if not cls or not isinstance(cls, BaseModel):
             print("** class doesn't exist **")
             return
 
@@ -148,23 +146,23 @@ class HBNBCommand(cmd.Cmd):
         optionaly filters by class name.
         """
 
-        args = shlex.split(arg)
-        objects = storage.all()
+        if arg:
+            cls = globals().get(arg)
+            if not cls or not issubclass(cls, BaseModel):
+                print("** class doesn't exits **")
+                return
 
-        # If no class name is provided, print all instances
-        if not args:
-            print([str(obj) for obj in objects.values()])
-
-        elif args[0] != 'BaseModel':
-            print("** class doesn't exist **")
-
-        else:
-            filtered_objs = [
-                str(obj) for key, obj in objects.items()
-                if key.startswith("{}.".format(args[0]))
+            objs = [
+                str(obj) for obj in storage.all().values()
+                if isinstance(obj, cls)
             ]
 
-            print(filtered_objs)
+        else:
+            objs = [
+                str(obj) for obj in storage.all().values()
+            ]
+
+        print(objs)
 
     def do_update(self, arg):
         """
@@ -172,13 +170,14 @@ class HBNBCommand(cmd.Cmd):
         updating an instance.
         """
 
-        args = shlex.split(arg)
+        args = arg.split()
 
-        if not args:
+        if len(args) == 0:
             print("** class name missing **")
             return
 
-        if args[0] != "BaseModel":
+        cls = globals().get(args[0])
+        if not cls or not isscubclass(cls, BaseModel):
             print("** class doesn't exist **")
             return
 
@@ -202,59 +201,17 @@ class HBNBCommand(cmd.Cmd):
             return
 
         # Ensure that the attribute name and value are valid
-        attribute_name = args[2]
-        value = args[3]
+        attr_name = args[2]
+        attr_value = args[3].strip('"')
 
-        if hasattr(obj, attribute_name):
-            attr_type = type(getattr(obj, attribute_name))
-            try:
-                value = attr_type(value)
+        try:
+            # Cast to proper type dynamically
+            attr_type = type(getattr(obj, attr_name, attr_value))
+            setattr(obj, attr_name, attr_type(attr_value))
+            obj.save()
 
-            except ValueError:
-                print("** invalid value type **")
-                return
-
-        else:
-            try:
-                if value.isdigit():
-                    value = int(value)
-
-                elif '.' in value:
-                    value = float(value)
-
-            except ValueError:
-                value = str(value)
-
-        setattr(obj, attribute_name, value)
-
-        """
-        # Cast value to the appropriate type based on the attribute type
-        if isinstance(getattr(obj, attribute_name, None), str):
-            setattr(obj, attribute_name, value)
-
-        elif isinstance(getattr(obj, attribute_name, None), int):
-            try:
-                setattr(obj, attribute_name, int(value))
-
-            except ValueError:
-                print("** invalid value type **")
-                return
-
-        elif isinstance(getattr(obj, attribute_name, None), float):
-            try:
-                setattr(obj, attribute_name, float(value))
-
-            except ValueError:
-                print("** invalid value type **")
-                return
-        else:
-            print("** attribute type unsupported **")
-            return
-        """
-
-        # Update the `updated_at` timestamp and save
-        obj.updated_at = datetime.now()
-        obj.save()
+        except ValueError:
+            print("** invalid value **")
 
     """
     def do_help(self, arg):
