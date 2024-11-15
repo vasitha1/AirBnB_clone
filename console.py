@@ -151,23 +151,27 @@ class HBNBCommand(cmd.Cmd):
         optionaly filters by class name.
         """
 
-        if arg:
-            cls = globals().get(arg)
-            if not cls or not issubclass(cls, BaseModel):
-                print("** class doesn't exits **")
-                return
+        if not arg:
+            print([str(obj) for obj in storage.all().values()])
+            return
 
-            objs = [
-                str(obj) for obj in storage.all().values()
-                if isinstance(obj, cls)
-            ]
+        if '.' in arg and arg.endswith('.all()'):
+
+            # Split class name and method
+            cls_name = arg.split('.')[0]
+
+            if cls_name in globals() and issubclass(globals()[cls_name], BaseModel):
+                instances = [
+                    str(obj) for key, obj in storage.all().items()
+                    if key.startswith(cls_name + '.')
+                ]
+                print(instances)
+
+            else:
+                print("** class doesn't exist **")
 
         else:
-            objs = [
-                str(obj) for obj in storage.all().values()
-            ]
-
-        print(objs)
+            print("** Invalid command synatx **")
 
     def do_update(self, arg):
         """
