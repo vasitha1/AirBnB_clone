@@ -73,7 +73,7 @@ class HBNBCommand(cmd.Cmd):
 
         cls_name, mtd_call = line.split('.', 1)
         mtd_name, _, args = mtd_call.partition('(')
-        args = args.rstrip(')')
+        args = args.rstrip(')').strip(' "')
 
         if cls_name not in globals() or not issubclass(globals()[cls_name], BaseModel):
             print("** class doesn't exist **")
@@ -85,12 +85,19 @@ class HBNBCommand(cmd.Cmd):
             "count": "do_count",
             "show": "do_show",
             "destroy": "do_destroy",
-            "update": "do_update"
+            "update": "do_update",
+            "create": "do_create"
         }
 
         if mtd_name in cmd_map:
             cmd_mtd = cmd_map[mtd_name]
-            full_args = f"{cls_name} {args}".strip()
+
+            if args:
+                full_args = f"{cls_name} {args}"
+
+            else:
+                full_args = cls_name
+
             getattr(self, cmd_mtd)(full_args)
 
         else:
@@ -248,6 +255,24 @@ class HBNBCommand(cmd.Cmd):
 
         except ValueError:
             print("** invalid value **")
+
+    def do_count(self, arg):
+        """Counts the number of instances of a class"""
+
+        if not arg:
+            print("** class name missing **")
+            return
+
+        cls_name = arg.strip()
+        if cls_name in globals() and issubclass(globals()[cls_name], BaseModel):
+            count = sum(
+                1 for key in storage.all()
+                if key.startswith(cls_name + '.')
+            )
+            print(count)
+
+        else:
+            print("** class does't exist **")
 
     """
     def do_help(self, arg):
