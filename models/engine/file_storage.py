@@ -33,6 +33,7 @@ persistence way using JSON files.
 import json
 import os
 from models.base_model import BaseModel
+from models.user import User
 
 
 class FileStorage:
@@ -75,5 +76,9 @@ class FileStorage:
 
             # Convert the dictionary back into objects
             for key, value in obj_dict.items():
-                if value['__class__'] == 'BaseModel':
-                    self.__objects[key] = BaseModel(**value)
+                class_name = value['__class__']
+
+                # Fetch the class dynamically using `globals()`
+                cls = globals().get(class_name)
+                if cls:
+                    self.__objects[key] = cls(**value)
