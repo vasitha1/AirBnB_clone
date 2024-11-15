@@ -63,11 +63,38 @@ class HBNBCommand(cmd.Cmd):
 
         pass
 
-    """
+
     def default(self, line):
-        Is called when the command is not recorgnised
-        print("Command not found: {}".format(line))
-    """
+        """Handles commands in the <ClassName>.<command>() format"""
+
+        if '.' not in line:
+            print("Command not found: {}".format(line))
+            return
+
+        cls_name, mtd_call = line.split('.', 1)
+        mtd_name, _, args = mtd_call.partition('(')
+        args = args.rstrip(')')
+
+        if cls_name not in globals() or issubclass(globals()[cls_name], BaseModel):
+            print("** class doesn't exist **")
+            return
+
+        # Map method name to actual command methods
+        cmd_map = {
+            "all": "do_all",
+            "count": "do_count",
+            "show": "do_show",
+            "destroy": "do_destroy",
+            "update": "do_update"
+        }
+
+        if mtd_name in cmd_map:
+            cmd_mtd = cmd_map[mtd_name]
+            full_args = "{} {}".strip().format(cls_name, args)
+            getattr(self, cmd_mtd)(full_args)
+
+        else:
+            print("Command not found: {}".format(line))
 
     def do_create(self, arg):
         """
@@ -102,7 +129,7 @@ class HBNBCommand(cmd.Cmd):
             return
 
         cls = globals().get(args[0])
-        if not cls or not isscubclass(cls, BaseModel):
+        if not cls or not issubclass(cls, BaseModel):
             print("** class doesn't exist **")
             return
 
@@ -186,7 +213,7 @@ class HBNBCommand(cmd.Cmd):
             return
 
         cls = globals().get(args[0])
-        if not cls or not isscubclass(cls, BaseModel):
+        if not cls or not issubclass(cls, BaseModel):
             print("** class doesn't exist **")
             return
 
