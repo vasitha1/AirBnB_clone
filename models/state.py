@@ -7,6 +7,7 @@ This module provides a `State` class whcich inherits the
 'BaseModel' class
 """
 
+from models.base_model import BaseModel
 
 class State(BaseModel):
     """
