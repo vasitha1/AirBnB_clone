@@ -75,7 +75,7 @@ class HBNBCommand(cmd.Cmd):
         mtd_name, _, args = mtd_call.partition('(')
         args = args.rstrip(')')
 
-        if cls_name not in globals() or issubclass(globals()[cls_name], BaseModel):
+        if cls_name not in globals() or not issubclass(globals()[cls_name], BaseModel):
             print("** class doesn't exist **")
             return
 
@@ -90,7 +90,7 @@ class HBNBCommand(cmd.Cmd):
 
         if mtd_name in cmd_map:
             cmd_mtd = cmd_map[mtd_name]
-            full_args = "{} {}".strip().format(cls_name, args)
+            full_args = f"{cls_name} {args}".strip()
             getattr(self, cmd_mtd)(full_args)
 
         else:
