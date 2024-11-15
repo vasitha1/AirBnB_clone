@@ -32,8 +32,13 @@ Design Notes:
 
 import cmd
 from models import storage
-from datetime import datetime
 from models.base_model import BaseModel
+from models.user import User
+from models.state import State
+from models.city import City
+from models.place import Place
+from models.amenity import Amenity
+from models.review import Review
 
 
 class HBNBCommand(cmd.Cmd):
@@ -76,7 +81,7 @@ class HBNBCommand(cmd.Cmd):
 
         # Fetch the class from the argument dynamically using `globals()`
         cls = globals().get(arg)
-        if cls and cls issubclass(cls, BaseModel):
+        if cls and issubclass(cls, BaseModel):
             instance = cls()
             instance.save()
             print(instance.id)
