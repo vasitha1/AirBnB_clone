@@ -7,6 +7,8 @@ This module provides a `Review` class whcich inherits the
 'BaseModel' class
 """
 
+from models.base_model import BaseModel
+
 
 class Review(BaseModel):
     """
