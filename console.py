@@ -171,7 +171,10 @@ class HBNBCommand(cmd.Cmd):
                 str(obj) for obj in storage.all().values()
             ]
 
-        print(objs)
+        return (objs)
+
+    def do_count(self, arg):
+        pass
 
     def do_update(self, arg):
         """
@@ -228,6 +231,8 @@ class HBNBCommand(cmd.Cmd):
         if len(parts) == 2:
             if parts[1] == 'all()':
                 self.do_all(parts[0])
+            elif parts[1] == 'count()'
+                self.do_count(parts[0])
         else:
             print("*** Unknown syntax: {}".format(line))
 
