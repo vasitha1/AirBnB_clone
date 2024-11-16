@@ -39,11 +39,7 @@ from models.city import City
 from models.place import Place
 from models.amenity import Amenity
 from models.review import Review
-from models.engine.file_storage import FileStorage
 
-
-storage = FileStorage()
-storage.reload()
 
 class HBNBCommand(cmd.Cmd):
     """Defines the commands as methods"""
@@ -67,11 +63,45 @@ class HBNBCommand(cmd.Cmd):
 
         pass
 
-    """
+
     def default(self, line):
-        Is called when the command is not recorgnised
-        print("Command not found: {}".format(line))
-    """
+        """Handles commands in the <ClassName>.<command>() format"""
+
+        if '.' not in line:
+            print("Command not found: {}".format(line))
+            return
+
+        cls_name, mtd_call = line.split('.', 1)
+        mtd_name, _, args = mtd_call.partition('(')
+        args = args.rstrip(')').strip(' "')
+
+        if cls_name not in globals() or not issubclass(globals()[cls_name], BaseModel):
+            print("** class doesn't exist **")
+            return
+
+        # Map method name to actual command methods
+        cmd_map = {
+            "all": "do_all",
+            "count": "do_count",
+            "show": "do_show",
+            "destroy": "do_destroy",
+            "update": "do_update",
+            "create": "do_create"
+        }
+
+        if mtd_name in cmd_map:
+            cmd_mtd = cmd_map[mtd_name]
+
+            if args:
+                full_args = f"{cls_name} {args}"
+
+            else:
+                full_args = cls_name
+
+            getattr(self, cmd_mtd)(full_args)
+
+        else:
+            print("Command not found: {}".format(line))
 
     def do_create(self, arg):
         """
@@ -106,7 +136,7 @@ class HBNBCommand(cmd.Cmd):
             return
 
         cls = globals().get(args[0])
-        if not cls or not isscubclass(cls, BaseModel):
+        if not cls or not issubclass(cls, BaseModel):
             print("** class doesn't exist **")
             return
 
@@ -155,23 +185,27 @@ class HBNBCommand(cmd.Cmd):
         optionaly filters by class name.
         """
 
-        if arg:
-            cls = globals().get(arg)
-            if not cls or not issubclass(cls, BaseModel):
-                print("** class doesn't exits **")
-                return
+        if not arg:
+            print([str(obj) for obj in storage.all().values()])
+            return
 
-            objs = [
-                str(obj) for obj in storage.all().values()
-                if isinstance(obj, cls)
-            ]
+        if '.' in arg and arg.endswith('.all()'):
+
+            # Split class name and method
+            cls_name = arg.split('.')[0]
+
+            if cls_name in globals() and issubclass(globals()[cls_name], BaseModel):
+                instances = [
+                    str(obj) for key, obj in storage.all().items()
+                    if key.startswith(cls_name + '.')
+                ]
+                print(instances)
+
+            else:
+                print("** class doesn't exist **")
 
         else:
-            objs = [
-                str(obj) for obj in storage.all().values()
-            ]
-
-        print(objs)
+            print("** Invalid command synatx **")
 
     def do_update(self, arg):
         """
@@ -186,7 +220,7 @@ class HBNBCommand(cmd.Cmd):
             return
 
         cls = globals().get(args[0])
-        if not cls or not isscubclass(cls, BaseModel):
+        if not cls or not issubclass(cls, BaseModel):
             print("** class doesn't exist **")
             return
 
@@ -222,14 +256,23 @@ class HBNBCommand(cmd.Cmd):
         except ValueError:
             print("** invalid value **")
 
-    def default(self, line):
-        """Handling unrecorgnised commands"""
-        parts = line.split('.')
-        if len(parts) == 2:
-            if parts[1] == 'all()':
-                self.do_all(parts[0])
+    def do_count(self, arg):
+        """Counts the number of instances of a class"""
+
+        if not arg:
+            print("** class name missing **")
+            return
+
+        cls_name = arg.strip()
+        if cls_name in globals() and issubclass(globals()[cls_name], BaseModel):
+            count = sum(
+                1 for key in storage.all()
+                if key.startswith(cls_name + '.')
+            )
+            print(count)
+
         else:
-            print("*** Unknown syntax: {}".format(line))
+            print("** class does't exist **")
 
     """
     def do_help(self, arg):
