@@ -75,7 +75,8 @@ class HBNBCommand(cmd.Cmd):
         mtd_name, _, args = mtd_call.partition('(')
         args = args.rstrip(')').strip(' "')
 
-        if cls_name not in globals() or not issubclass(globals()[cls_name], BaseModel):
+        cls = globals().get(cls_name)
+        if not cls or not issubclass(cls, BaseModel):
             print("** class doesn't exist **")
             return
 
@@ -91,17 +92,11 @@ class HBNBCommand(cmd.Cmd):
 
         if mtd_name in cmd_map:
             cmd_mtd = cmd_map[mtd_name]
-
-            if args:
-                full_args = f"{cls_name} {args}"
-
-            else:
-                full_args = cls_name
-
+            full_args = f"{cls_name} {args}" if args else cls_name
             getattr(self, cmd_mtd)(full_args)
 
         else:
-            print("Command not found: {}".format(line))
+            print("Invalid command: {}".format(mtd_name))
 
     def do_create(self, arg):
         """
@@ -163,7 +158,7 @@ class HBNBCommand(cmd.Cmd):
             return
 
         cls = globals().get(args[0])
-        if not cls or not isinstance(cls, BaseModel):
+        if not cls or not issubclass(cls, BaseModel):
             print("** class doesn't exist **")
             return
 
@@ -193,8 +188,8 @@ class HBNBCommand(cmd.Cmd):
 
             # Split class name and method
             cls_name = arg.split('.')[0]
-
-            if cls_name in globals() and issubclass(globals()[cls_name], BaseModel):
+            cls = globals().get(cls_name)
+            if cls and issubclass(cls, BaseModel):
                 instances = [
                     str(obj) for key, obj in storage.all().items()
                     if key.startswith(cls_name + '.')
@@ -206,6 +201,24 @@ class HBNBCommand(cmd.Cmd):
 
         else:
             print("** Invalid command synatx **")
+
+    def do_count(self, arg):
+        """Counts the number of inctances of a class"""
+
+        if not arg:
+            print("** class name missing **")
+            return
+
+        cls = globals().get(arg)
+        if cls and issubclass(cls, BaseModel):
+            count = sum(
+                1 for key in storage.all()
+                if key.startswith(arg + '.')
+            )
+            print(count)
+
+        else:
+            print("** class doesn't exist **")
 
     def do_update(self, arg):
         """
