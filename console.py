@@ -305,19 +305,17 @@ class HBNBCommand(cmd.Cmd):
         except ValueError:
             print("** invalid value **")
 
-    """
     def do_help(self, arg):
-         Doccuments all created methods
+        """Doccuments all created methods"""
         if arg == "quit":
             print("Quit command to exit the program\n")
         elif arg == "EOF":
             print("Ctrl + D command to exit the program\n")
 
-     else:
+        else:
             print("\nDocumented commands (type help <topic>):")
             print("========================================")
             print("EOF  help  quit\n")
-    """
 
 
 if __name__ == '__main__':
