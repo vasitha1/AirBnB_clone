@@ -62,8 +62,10 @@ class HBNBCommand(cmd.Cmd):
         """Called when an empty line is entered."""
 
         pass
+
     def delete_by_id(self, model, obj_id):
         """Find and delete an element of model by its id"""
+
         F = FileStorage
         if model not in F.models:
             raise ModelNotFoundError(model)
@@ -74,14 +76,18 @@ class HBNBCommand(cmd.Cmd):
 
         del F.__objects[key]
         self.save()
+
     def do_destroy(self, arguments):
         """Deletes an Instance of Model based on its ModelName and id."""
+
         parsed_args, num_args = parse(arguments)
 
         if not num_args:
             print("** class name missing **")
+
         elif num_args == 1:
             print("** instance id missing **")
+
         elif num_args == 2:
             try:
                 storage.delete_by_id(*parsed_args)
@@ -300,24 +306,6 @@ class HBNBCommand(cmd.Cmd):
 
         except ValueError:
             print("** invalid value **")
-
-    def do_count(self, arg):
-        """Counts the number of instances of a class"""
-
-        if not arg:
-            print("** class name missing **")
-            return
-
-        cls_name = arg.strip()
-        if cls_name in globals() and issubclass(globals()[cls_name], BaseModel):
-            count = sum(
-                1 for key in storage.all()
-                if key.startswith(cls_name + '.')
-            )
-            print(count)
-
-        else:
-            print("** class does't exist **")
 
     """
     def do_help(self, arg):
