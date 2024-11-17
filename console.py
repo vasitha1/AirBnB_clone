@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 
 """
+
 console.py
 
 This module provides `HBNBCommand` class which used as the entry point of
@@ -32,13 +33,14 @@ Design Notes:
 
 import cmd
 from models import storage
-from models.base_model import BaseModel
 from models.user import User
-from models.state import State
 from models.city import City
 from models.place import Place
-from models.amenity import Amenity
+from models.state import State
 from models.review import Review
+from models.amenity import Amenity
+from models.base_model import BaseModel
+from models.engine.file_storage import FileStorage
 
 
 class HBNBCommand(cmd.Cmd):
@@ -66,7 +68,7 @@ class HBNBCommand(cmd.Cmd):
     def delete_by_id(self, model, obj_id):
         """Find and delete an element of model by its id"""
 
-        F = FileStorage
+        F = FileStorage()
         if model not in F.models:
             raise ModelNotFoundError(model)
 
@@ -77,8 +79,9 @@ class HBNBCommand(cmd.Cmd):
         del F.__objects[key]
         self.save()
 
+    """
     def do_destroy(self, arguments):
-        """Deletes an Instance of Model based on its ModelName and id."""
+        Deletes an Instance of Model based on its ModelName and id.
 
         parsed_args, num_args = parse(arguments)
 
@@ -90,14 +93,14 @@ class HBNBCommand(cmd.Cmd):
 
         elif num_args == 2:
             try:
-                s.delete_by_id(*parsed_args)
+                storage.delete_by_id(*parsed_args)
             except ModelNotFoundError:
                 print("** class doesn't exist **")
             except InstanceNotFoundError:
                 print("** no instance found **")
         else:
             print("** Too many arguments for destroy **")
-
+    """
 
     def default(self, line):
         """Handles commands in the <ClassName>.<command>() format"""
@@ -283,80 +286,6 @@ class HBNBCommand(cmd.Cmd):
         obj = storage.all().get(key)
 
         if not obj:
-            :x
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
             print("** no instance found **")
             return
 
