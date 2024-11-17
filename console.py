@@ -79,29 +79,6 @@ class HBNBCommand(cmd.Cmd):
         del F.__objects[key]
         self.save()
 
-    """
-    def do_destroy(self, arguments):
-        Deletes an Instance of Model based on its ModelName and id.
-
-        parsed_args, num_args = parse(arguments)
-
-        if not num_args:
-            print("** class name missing **")
-
-        elif num_args == 1:
-            print("** instance id missing **")
-
-        elif num_args == 2:
-            try:
-                storage.delete_by_id(*parsed_args)
-            except ModelNotFoundError:
-                print("** class doesn't exist **")
-            except InstanceNotFoundError:
-                print("** no instance found **")
-        else:
-            print("** Too many arguments for destroy **")
-    """
-
     def default(self, line):
         """Handles commands in the <ClassName>.<command>() format"""
 
