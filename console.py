@@ -90,7 +90,7 @@ class HBNBCommand(cmd.Cmd):
 
         elif num_args == 2:
             try:
-                storage.delete_by_id(*parsed_args)
+                s.delete_by_id(*parsed_args)
             except ModelNotFoundError:
                 print("** class doesn't exist **")
             except InstanceNotFoundError:
@@ -283,6 +283,80 @@ class HBNBCommand(cmd.Cmd):
         obj = storage.all().get(key)
 
         if not obj:
+            :x
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
             print("** no instance found **")
             return
 
