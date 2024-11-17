@@ -225,8 +225,9 @@ class HBNBCommand(cmd.Cmd):
         if '.' in arg and arg.endswith('.all()'):
 
             # Split class name and method
-            cls_name = arg.split('.')[0]
+            cls_name = arg.split()
             cls = globals().get(cls_name)
+
             if cls and issubclass(cls, BaseModel):
                 instances = [
                     str(obj) for key, obj in storage.all().items()
@@ -234,13 +235,8 @@ class HBNBCommand(cmd.Cmd):
                 ]
                 print(instances)
 
-            else:
-                print("** class doesn't exist **")
-
         else:
-            print("** Invalid command synatx **")
-
-        print(objs)
+            print("** class doesn't exist **")
 
     def do_count(self, arg):
         """Counts the number of inctances of a class"""
@@ -259,7 +255,6 @@ class HBNBCommand(cmd.Cmd):
 
         else:
             print("** class doesn't exist **")
-
 
     def do_update(self, arg):
         """
@@ -317,7 +312,7 @@ class HBNBCommand(cmd.Cmd):
             print("Quit command to exit the program\n")
         elif arg == "EOF":
             print("Ctrl + D command to exit the program\n")
-     
+
      else:
             print("\nDocumented commands (type help <topic>):")
             print("========================================")
