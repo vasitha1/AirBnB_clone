@@ -123,6 +123,7 @@ class BaseModel:
         # Convert 'created_at' and 'updated_at' to ISO format
         dict_rep['created_at'] = self.created_at.isoformat()
         dict_rep['updated_at'] = self.updated_at.isoformat()
+        dict_rep['__class__'] = self.__class__.__name__
 
         # Add the class name as __class__
         dict_rep['__class__'] = self.__class__.__name__
