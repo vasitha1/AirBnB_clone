@@ -106,9 +106,11 @@ class HBNBCommand(cmd.Cmd):
         }
 
         if mtd_name in cmd_map:
-            cmd_mtd = cmd_map[mtd_name]
             full_args = f"{cls_name} {args}" if args else cls_name
-            getattr(self, cmd_mtd)(full_args)
+            getattr(self, cmd_map[mtd_name])(full_args)
+
+        elif mtd_name == "update":
+            self.handle_update(cls_name, args)
 
         else:
             print("Invalid command: {}".format(mtd_name))
@@ -180,7 +182,6 @@ class HBNBCommand(cmd.Cmd):
         if len(args) < 2:
             print("** instance id missing **")
             return
-
         key = "{}.{}".format(args[0], args[1])
         if key in storage.all():
             del storage.all()[key]
@@ -192,25 +193,20 @@ class HBNBCommand(cmd.Cmd):
     def do_all(self, arg):
         """
         Prints all string representations of all instances and
-        optionaly filters by class name.
+        optionally filters by class name.
         """
 
         if not arg:
             print([str(obj) for obj in storage.all().values()])
             return
 
-        if '.' in arg and arg.endswith('.all()'):
-
-            # Split class name and method
-            cls_name = arg.split()
-            cls = globals().get(cls_name)
-
-            if cls and issubclass(cls, BaseModel):
-                instances = [
-                    str(obj) for key, obj in storage.all().items()
-                    if key.startswith(cls_name + '.')
-                ]
-                print(instances)
+        cls = globals().get(arg)
+        if cls and issubclass(cls, BaseModel):
+            instances = [
+                str(obj) for key, obj in storage.all().items()
+                if key.startswith(arg + '.')
+            ]
+            print(instances)
 
         else:
             print("** class doesn't exist **")
@@ -281,6 +277,58 @@ class HBNBCommand(cmd.Cmd):
 
         except ValueError:
             print("** invalid value **")
+
+    def handle_update(self, cls_name, args):
+        """
+        Handles the `update` command with different formats:
+        - <class name>.update(<id>, <attribute name>, <attribute value>)
+        - <class name>.update(<id>, <dictionary>)
+        """
+
+        import json
+
+        args_list = args.split(', ', 1)
+
+        if len(args_list) < 1:
+            print("** instance id missing **")
+            return
+
+        obj_id = args_list[0].strip('"')
+
+        if len(args_list) == 1:
+            print("** attribute name missing **")
+            return
+
+        obj_key = f"{cls_name}.{obj_id}"
+        obj = storage.all().get(obj_key)
+
+        if not obj:
+            print("** no instance found **")
+            return
+
+        if args_list[1].startswith('{') and args_list[1].endswith('}'):
+            # Update with dictionary
+            try:
+                attr_dict = json.loads(args_list[1].replace("'", '"'))
+                for key, value in attr_dict.items():
+                    setattr(obj, key, value)
+                obj.save()
+            except json.JSONDecodeError:
+                print("** invalid dictionary format **")
+        else:
+            # Update with <attribute name>, <attribute value>
+            attr_name, attr_value = args_list[1].split(', ', 1)
+            attr_name = attr_name.strip('"')
+            attr_value = attr_value.strip('"')
+
+            # Type conversion if necessary
+            if hasattr(obj, attr_name):
+                attr_type = type(getattr(obj, attr_name))
+                attr_value = attr_type(attr_value)
+
+            setattr(obj, attr_name, attr_value)
+
+        obj.save()
 
     def do_help(self, arg):
         """Doccuments all created methods"""
