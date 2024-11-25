@@ -1,0 +1,11 @@
+footer {  
+            background-color: #00FF00;  
+            height: 60px;  
+            width: 100%;  
+            display: flex; /* Use flexbox for alignment */  
+            align-items: center;  
+            justify-content: center;  
+        }  
+div {
+	text-align: center;
+}
