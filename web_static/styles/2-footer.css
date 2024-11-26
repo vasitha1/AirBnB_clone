@@ -4,7 +4,10 @@ footer {
             width: 100%;  
             display: flex; /* Use flexbox for alignment */  
             align-items: center;  
-            justify-content: center;  
+            justify-content: center;
+	    position: fixed;
+            bottom: 0;
+            text-align: center;
         }  
 div {
 	text-align: center;
